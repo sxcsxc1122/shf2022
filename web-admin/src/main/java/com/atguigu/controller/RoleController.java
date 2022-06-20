@@ -1,5 +1,6 @@
 package com.atguigu.controller;
 
+import com.atguigu.base.BaseController;
 import com.atguigu.entity.Role;
 import com.atguigu.service.RoleService;
 import com.github.pagehelper.PageInfo;
@@ -16,12 +17,11 @@ import java.util.TreeMap;
 
 @Controller
 @RequestMapping("/role")
-public class RoleController {
+public class RoleController extends BaseController {
 
     private static final String PAGE_INDEX = "role/index";
     private static final String PAGE_CREATE = "role/create";
     private static final String ACTION_LIST = "redirect:/role";
-    private static final String PAGE_SUCCESS = "common/successPage";
     private static final String PAGE_EDIT = "role/edit";
 
     @Autowired
@@ -35,11 +35,9 @@ public class RoleController {
     }
 
     @RequestMapping("/update")
-    public String update(Role role,Map map){ //springMVC框架根据反射创建bean对象，并调用参数名称的set方法，将参数封装到bean对象中。
+    public String update(Role role,Map map,HttpServletRequest request){ //springMVC框架根据反射创建bean对象，并调用参数名称的set方法，将参数封装到bean对象中。
         roleService.update(role);
-        //return ACTION_LIST;
-        map.put("messagePage","修改成功,哈哈");
-        return PAGE_SUCCESS;
+        return this.successPage("修改成功,哈哈",request);
     }
 
     @RequestMapping("/edit/{id}")
@@ -50,12 +48,18 @@ public class RoleController {
     }
 
     @RequestMapping("/save")
+    public String save(Role role,Map map,HttpServletRequest request){ //springMVC框架根据反射创建bean对象，并调用参数名称的set方法，将参数封装到bean对象中。
+        roleService.insert(role);
+        return this.successPage("添加成功,哈哈",request);
+    }
+
+   /* @RequestMapping("/save")
     public String save(Role role,Map map){ //springMVC框架根据反射创建bean对象，并调用参数名称的set方法，将参数封装到bean对象中。
         roleService.insert(role);
         //return ACTION_LIST;
         map.put("messagePage","添加成功,哈哈");
         return PAGE_SUCCESS;
-    }
+    }*/
 
     @RequestMapping("/create")
     public String create(){
@@ -90,34 +94,4 @@ public class RoleController {
         return PAGE_INDEX;
     }
 
-    /**
-     * 封装页面提交的分页参数及搜索条件
-     * @param request
-     * @return
-     */
-    private Map<String, Object> getFilters(HttpServletRequest request) {
-        Enumeration<String> paramNames = request.getParameterNames();
-        Map<String, Object> filters = new TreeMap();
-        while(paramNames != null && paramNames.hasMoreElements()) {
-            String paramName = (String)paramNames.nextElement();
-            String[] values = request.getParameterValues(paramName);
-            if (values != null && values.length != 0) {
-                if (values.length > 1) {
-                    filters.put(paramName, values);
-                } else {
-                    filters.put(paramName, values[0]);
-                }
-            }
-        }
-
-        //如果没有提交请求参数，给就这两个参数赋予默认值。
-        if(!filters.containsKey("pageNum")) {
-            filters.put("pageNum", 1);
-        }
-        if(!filters.containsKey("pageSize")) {
-            filters.put("pageSize", 2);
-        }
-
-        return filters;
-    }
 }
